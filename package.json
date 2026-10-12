@@ -2,6 +2,7 @@
   "name": "fluentcontext-pro",
   "version": "6.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Customizable right-click menu browser extension with native-looking Windows, macOS and Linux styles.",
   "engines": {
     "node": ">=22"
