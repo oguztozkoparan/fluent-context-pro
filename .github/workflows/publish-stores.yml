@@ -41,7 +41,7 @@ jobs:
       EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
       EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.tag }}
 
