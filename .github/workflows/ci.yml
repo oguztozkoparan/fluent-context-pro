@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Check, test and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Static checks
+        run: npm run check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build packages
+        run: npm run package
+
+      - name: Mozilla add-ons linter (listed build)
+        run: npx --yes web-ext@8 lint --source-dir dist/firefox --warnings-as-errors
+
+      - name: Mozilla add-ons linter (self-hosted build)
+        if: hashFiles('dist/firefox-selfhosted/manifest.json') != ''
+        run: npx --yes web-ext@8 lint --source-dir dist/firefox-selfhosted --self-hosted --warnings-as-errors
+
+      - name: End-to-end tests (headless Chrome)
+        run: npm run test:e2e
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluentcontext-pro-${{ github.sha }}
+          path: |
+            dist/*.zip
+            dist/updates.json
+          if-no-files-found: error
+          retention-days: 14

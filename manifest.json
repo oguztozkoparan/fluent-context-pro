@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "FluentContext Pro",
+  "version": "6.1.0",
+  "description": "A fast, customizable right-click menu with native-looking Windows, macOS and Linux styles. Works in Chrome, Edge, Opera and Firefox.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "clipboardWrite",
+    "downloads",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src *; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "FluentContext Pro",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "options_ui": {
+    "page": "popup/popup.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/platform.js",
+        "src/util.js",
+        "src/content/early.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/platform.js",
+        "src/util.js",
+        "src/i18n/i18n.js",
+        "src/i18n/menu.js",
+        "src/icons.js",
+        "src/items.js",
+        "src/config.js",
+        "src/theme.js",
+        "src/qr.js",
+        "src/menu-view.js",
+        "src/content/host.js",
+        "src/content/main.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ]
+}

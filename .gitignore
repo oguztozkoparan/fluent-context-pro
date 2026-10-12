@@ -1,0 +1,18 @@
+# Build output
+dist/
+
+# Local tooling
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Signed packages and secrets never belong in git
+*.xpi
+*.crx
+*.pem
+.env
+.web-extension-id
+web-ext-artifacts/

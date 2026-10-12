@@ -1,0 +1,86 @@
+name: Publish to stores
+
+# Manual and optional. Uploads the ZIPs of an existing GitHub release to the stores whose
+# secrets are configured (see docs/STORE.md → "Automated publishing"). Stores still review
+# every submission before it goes live.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish, e.g. v6.1.0'
+        required: true
+      chrome:
+        description: 'Chrome Web Store'
+        type: boolean
+        default: true
+      firefox:
+        description: 'Firefox Add-ons (listed)'
+        type: boolean
+        default: true
+      edge:
+        description: 'Microsoft Edge Add-ons'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TAG: ${{ github.event.inputs.tag }}
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+      CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+      AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+      AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+      EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$TAG" --dir dist --pattern '*.zip'
+
+      - name: Chrome Web Store
+        if: github.event.inputs.chrome == 'true' && env.CWS_CLIENT_ID != ''
+        run: |
+          ZIP=$(ls dist/*-chromium.zip)
+          TOKEN=$(curl -fsS https://oauth2.googleapis.com/token \
+            -d client_id="$CWS_CLIENT_ID" -d client_secret="$CWS_CLIENT_SECRET" \
+            -d refresh_token="$CWS_REFRESH_TOKEN" -d grant_type=refresh_token | jq -r .access_token)
+          curl -fsS -X PUT -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" -T "$ZIP" \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$CWS_EXTENSION_ID" | tee /tmp/upload.json
+          jq -e '.uploadState == "SUCCESS" or .uploadState == "IN_PROGRESS"' /tmp/upload.json
+          curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "x-goog-api-version: 2" -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$CWS_EXTENSION_ID/publish"
+
+      - name: Firefox Add-ons (listed)
+        if: github.event.inputs.firefox == 'true' && env.AMO_JWT_ISSUER != ''
+        run: |
+          mkdir -p dist/firefox && unzip -q dist/*-firefox.zip -d dist/firefox
+          npx --yes web-ext@8 sign --source-dir dist/firefox --channel listed \
+            --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET" --approval-timeout 0
+
+      - name: Microsoft Edge Add-ons
+        if: github.event.inputs.edge == 'true' && env.EDGE_CLIENT_ID != ''
+        run: |
+          ZIP=$(ls dist/*-chromium.zip)
+          API="https://api.addons.microsoftedge.microsoft.com/v1/products/$EDGE_PRODUCT_ID"
+          AUTH=(-H "Authorization: ApiKey $EDGE_API_KEY" -H "X-ClientID: $EDGE_CLIENT_ID")
+          curl -fsS -X POST "${AUTH[@]}" -H "Content-Type: application/zip" -T "$ZIP" "$API/submissions/draft/package"
+          sleep 30
+          curl -fsS -X POST "${AUTH[@]}" -H "Content-Type: application/json" \
+            -d "{\"notes\":\"Release $TAG\"}" "$API/submissions"

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Designing calm interfaces</title>
+    <style>
+      :root { color-scheme: light; }
+      body { margin: 0; min-height: 100vh; font: 17px/1.65 Georgia, "Times New Roman", serif; color: #1d232b; background: linear-gradient(160deg, #eef3fb, #f8f4ee); }
+      header { padding: 22px 72px; font: 600 15px system-ui, sans-serif; display: flex; gap: 28px; align-items: center; color: #3a4656; }
+      header b { font-size: 18px; color: #1d232b; margin-right: auto; }
+      header a { color: inherit; text-decoration: none; }
+      article { max-width: 760px; margin: 12px 0 0 72px; }
+      h1 { font: 700 44px/1.15 system-ui, sans-serif; letter-spacing: -0.02em; margin: 10px 0 14px; }
+      .meta { font: 14px system-ui, sans-serif; color: #6a7482; margin-bottom: 26px; }
+      .hero { display: flex; gap: 22px; align-items: center; margin: 22px 0; }
+      .hero img { width: 150px; height: 150px; border-radius: 28px; box-shadow: 0 12px 30px rgba(40, 60, 120, 0.25); }
+      a.inline { color: #2156c8; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+      mark { background: #cfe0ff; padding: 1px 0; }
+    </style>
+  </head>
+  <body>
+    <header><b>Field Notes</b><a href="https://example.com/">Articles</a><a href="https://example.com/">Guides</a><a href="https://example.com/">About</a></header>
+    <article>
+      <h1>Designing calm interfaces</h1>
+      <div class="meta">6 min read · Interaction design</div>
+      <p id="lead">Good software gets out of the way. <span id="sel">Menus should appear exactly where your attention already is, speak the visual language of your system, and disappear the moment you are done.</span></p>
+      <div class="hero"><img id="img" src="logo.png" alt="App icon" /><p>A familiar menu is one you never have to think about: the same shortcuts, the same motion, the same materials as the rest of the platform.</p></div>
+      <p>Read the <a id="lnk" class="inline" href="https://example.com/guides/menus?utm_source=newsletter&amp;utm_medium=email&amp;id=12">complete guide to context menus</a> for patterns that work on Windows, macOS and Linux alike.</p>
+    </article>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+name: Bump version
+
+# One-click release from the Actions tab: bumps the version, commits, tags, pushes,
+# then starts the Release workflow (tags pushed with GITHUB_TOKEN do not trigger workflows).
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'patch, minor, major or an explicit x.y.z'
+        required: true
+        default: patch
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check before bumping
+        run: |
+          npm run check
+          npm test
+
+      - name: Bump, commit and tag
+        id: bump
+        run: |
+          node scripts/release.mjs bump "${{ github.event.inputs.level }}"
+          echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Push
+        run: git push --follow-tags origin HEAD
+
+      - name: Start release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run release.yml -f tag="${{ steps.bump.outputs.tag }}"

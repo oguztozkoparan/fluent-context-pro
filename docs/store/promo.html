@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FluentContext Pro promo</title>
+    <style>
+      html, body { margin: 0; height: 100%; }
+      body {
+        display: flex; align-items: center; gap: 6%; padding: 0 7%; box-sizing: border-box; overflow: hidden;
+        font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; color: #fff;
+        background: radial-gradient(circle at 15% 20%, #4f8cff 0, transparent 45%), radial-gradient(circle at 85% 85%, #9b5cff 0, transparent 50%), #1b2340;
+      }
+      img { height: 46%; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35)); }
+      h1 { margin: 0; font-size: 9vh; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+      p { margin: 2.5vh 0 0; font-size: 4.6vh; opacity: 0.9; line-height: 1.3; }
+      .chips { margin-top: 3.5vh; display: flex; gap: 1.2vh; flex-wrap: wrap; }
+      .chips span { font-size: 3.2vh; padding: 0.8vh 1.8vh; border-radius: 99px; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.25); }
+      body.small .chips { display: none; }
+      body.small p { font-size: 6.2vh; }
+      body.small h1 { font-size: 12vh; }
+    </style>
+  </head>
+  <body>
+    <img src="../../icons/icon128.png" alt="" />
+    <div>
+      <h1>FluentContext Pro</h1>
+      <p>A native-feeling right-click menu for every platform.</p>
+      <div class="chips"><span>Windows</span><span>macOS</span><span>Linux</span><span>6 languages</span><span>Private by design</span></div>
+    </div>
+    <script>if (location.hash === '#small') document.body.classList.add('small');</script>
+  </body>
+</html>

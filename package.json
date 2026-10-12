@@ -1,0 +1,24 @@
+{
+  "name": "fluentcontext-pro",
+  "version": "6.1.0",
+  "private": true,
+  "description": "Customizable right-click menu browser extension with native-looking Windows, macOS and Linux styles.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node tests/unit.test.js",
+    "test:e2e": "node tests/e2e/chrome.test.mjs",
+    "build": "node scripts/build.mjs",
+    "package": "node scripts/build.mjs --zip",
+    "lint:firefox": "npx --yes web-ext@8 lint --source-dir dist/firefox --warnings-as-errors",
+    "screenshots": "node scripts/screenshots.mjs",
+    "release": "node scripts/release.mjs bump",
+    "verify": "npm run check && npm test && npm run package && npm run test:e2e"
+  },
+  "fluentcontext": {
+    "geckoId": "fluentcontext-pro@local",
+    "geckoIdSelfHosted": "fluentcontext-pro-selfhosted@local"
+  }
+}

@@ -1,0 +1,83 @@
+name: Release
+
+# Runs when a version tag is pushed (git push --follow-tags) or when the "Bump version"
+# workflow dispatches it. Builds, tests, and publishes a GitHub Release with store-ready ZIPs.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to release, e.g. v6.1.0'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+      AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify tag, package.json, manifest.json and CHANGELOG agree
+        run: node scripts/release.mjs verify "$TAG"
+
+      - name: Static checks and unit tests
+        run: |
+          npm run check
+          npm test
+
+      - name: Build packages
+        run: npm run package
+
+      - name: Mozilla add-ons linter
+        run: npx --yes web-ext@8 lint --source-dir dist/firefox --warnings-as-errors
+
+      - name: End-to-end tests (headless Chrome)
+        run: npm run test:e2e
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+
+      # Optional: sign the self-hosted Firefox build through AMO (unlisted channel) so it can be
+      # installed and auto-updated from GitHub. Needs repository secrets AMO_JWT_ISSUER / AMO_JWT_SECRET.
+      - name: Sign self-hosted Firefox build
+        if: env.AMO_JWT_ISSUER != ''
+        run: |
+          VERSION="${TAG#v}"
+          npx --yes web-ext@8 sign --source-dir dist/firefox-selfhosted --channel unlisted \
+            --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET" --artifacts-dir dist/signed
+          mv dist/signed/*.xpi "dist/fluentcontext-pro-${VERSION}-firefox-selfhosted.xpi"
+
+      - name: Release notes from CHANGELOG
+        run: node scripts/release.mjs notes "${TAG#v}" > dist/RELEASE_NOTES.md
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          assets=(dist/*.zip dist/*.xpi)
+          # updates.json is only useful once a signed self-hosted XPI exists.
+          if compgen -G "dist/*.xpi" > /dev/null; then assets+=(dist/updates.json); fi
+          gh release create "$TAG" "${assets[@]}" \
+            --title "FluentContext Pro ${TAG#v}" \
+            --notes-file dist/RELEASE_NOTES.md \
+            --verify-tag

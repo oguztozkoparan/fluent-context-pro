@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FluentContext Pro</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="top">
+      <img src="../icons/icon48.png" alt="" width="24" height="24" />
+      <h1>FluentContext Pro</h1>
+      <span id="version" class="version"></span>
+      <span class="spacer"></span>
+      <button id="openTab" class="icon-btn" type="button" data-i18n-title="p_openTab"></button>
+    </header>
+
+    <div class="banners">
+      <div id="permBanner" class="banner" hidden>
+        <span data-i18n="p_permMissing"></span>
+        <button id="permGrant" class="btn primary" type="button" data-i18n="p_permGrant"></button>
+      </div>
+      <div id="updateBanner" class="banner" hidden>
+        <span class="bi" data-icon="download"></span>
+        <span id="updateBannerText"></span>
+        <button id="updateBannerBtn" class="btn primary" type="button" data-i18n="p_download"></button>
+      </div>
+      <div id="whatsNewBanner" class="banner" hidden>
+        <span class="bi" data-icon="sparkles"></span>
+        <span id="whatsNewText"></span>
+        <button id="whatsNewBtn" class="btn" type="button" data-i18n="p_releaseNotes"></button>
+        <button id="whatsNewClose" class="icon-btn" type="button" data-i18n-title="p_dismiss"></button>
+      </div>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button role="tab" type="button" data-tab="style" data-i18n="p_tabStyle"></button>
+      <button role="tab" type="button" data-tab="items" data-i18n="p_tabItems"></button>
+      <button role="tab" type="button" data-tab="general" data-i18n="p_tabGeneral"></button>
+      <button role="tab" type="button" data-tab="advanced" data-i18n="p_tabAdvanced"></button>
+    </nav>
+
+    <main id="main">
+      <!-- ================= Appearance ================= -->
+      <section class="tab" id="tab-style" role="tabpanel">
+        <div class="preview" id="preview" aria-hidden="true"></div>
+
+        <div class="card">
+          <h3 data-i18n="p_look"></h3>
+          <label class="field">
+            <span data-i18n="p_style"></span>
+            <select id="platformStyle" data-key="platformStyle">
+              <option value="auto" data-i18n="p_styleAuto"></option>
+              <option value="windows" data-i18n="p_styleWindows"></option>
+              <option value="macos" data-i18n="p_styleMac"></option>
+              <option value="linux" data-i18n="p_styleLinux"></option>
+            </select>
+          </label>
+          <p class="hint" data-i18n="p_styleHint"></p>
+          <label class="field">
+            <span data-i18n="p_colorTheme"></span>
+            <select data-key="theme">
+              <option value="auto" data-i18n="p_auto"></option>
+              <option value="light" data-i18n="p_light"></option>
+              <option value="dark" data-i18n="p_dark"></option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="p_accent"></span>
+            <span class="ctrl"><input type="color" data-key="accentColor" /><output data-for="accentColor"></output></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_font"></span>
+            <select id="fontFamily" data-key="fontFamily"></select>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_acrylic"></h3>
+          <label class="field">
+            <span data-i18n="p_opacity"></span>
+            <span class="ctrl"><input type="range" data-key="bgOpacity" min="0.2" max="1" step="0.02" /><output data-for="bgOpacity"></output></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_blur"></span>
+            <span class="ctrl"><input type="range" data-key="blurVal" min="0" max="60" step="1" /><output data-for="blurVal"></output></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_shadow"></span>
+            <span class="ctrl"><input type="range" data-key="shadowIntensity" min="0" max="1" step="0.05" /><output data-for="shadowIntensity"></output></span>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_layout"></h3>
+          <label class="field">
+            <span data-i18n="p_radius"></span>
+            <span class="ctrl"><input type="range" data-key="borderRadius" min="0" max="24" step="1" /><output data-for="borderRadius"></output></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_fontSize"></span>
+            <span class="ctrl"><input type="range" data-key="fontSize" min="10" max="20" step="1" /><output data-for="fontSize"></output></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_menuWidth"></span>
+            <span class="ctrl"><input type="range" data-key="menuWidth" min="140" max="400" step="10" /><output data-for="menuWidth"></output></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_density"></span>
+            <select data-key="density">
+              <option value="compact" data-i18n="p_compact"></option>
+              <option value="normal" data-i18n="p_normal"></option>
+              <option value="comfortable" data-i18n="p_comfortable"></option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="p_showIcons"></span>
+            <span class="switch"><input type="checkbox" data-key="showIcons" /><span class="track"></span></span>
+          </label>
+          <label class="field">
+            <span data-i18n="p_showShortcuts"></span>
+            <span class="switch"><input type="checkbox" data-key="showShortcuts" /><span class="track"></span></span>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_animation"></h3>
+          <label class="field">
+            <span data-i18n="p_animStyle"></span>
+            <select data-key="animStyle">
+              <option value="scale" data-i18n="p_animScale"></option>
+              <option value="slide" data-i18n="p_animSlide"></option>
+              <option value="fade" data-i18n="p_animFade"></option>
+              <option value="none" data-i18n="p_animNone"></option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="p_duration"></span>
+            <span class="ctrl"><input type="range" data-key="animDuration" min="0" max="600" step="10" /><output data-for="animDuration"></output></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- ================= Menu ================= -->
+      <section class="tab" id="tab-items" role="tabpanel">
+        <div class="card">
+          <h3 data-i18n="p_layoutTitle"></h3>
+          <label class="field">
+            <span data-i18n="p_menuLayout"></span>
+            <select data-key="menuLayout">
+              <option value="compact" data-i18n="p_layoutCompact"></option>
+              <option value="full" data-i18n="p_layoutFull"></option>
+            </select>
+          </label>
+          <p class="hint" data-i18n="p_layoutHint"></p>
+          <label class="field">
+            <span data-i18n="p_navBar"></span>
+            <span class="switch"><input type="checkbox" data-key="navBar" /><span class="track"></span></span>
+          </label>
+          <p class="hint" data-i18n="p_navBarHint"></p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_tabItems"></h3>
+          <p class="hint" data-i18n="p_itemsHint"></p>
+          <input id="itemFilter" class="filter" type="search" data-i18n-placeholder="p_filterItems" spellcheck="false" />
+          <div id="itemGroups"></div>
+          <div class="actions"><button id="resetOrder" class="btn" type="button" data-i18n="p_resetOrder"></button></div>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_customTitle"></h3>
+          <p class="hint" data-i18n="p_customHint"></p>
+          <div id="customList" class="custom-list"></div>
+          <div class="custom-row add">
+            <select id="customType" class="c-type">
+              <option value="url" data-i18n="p_customTypeUrl"></option>
+              <option value="ai" data-i18n="p_customTypeAi"></option>
+            </select>
+            <input id="customLabel" class="c-label" type="text" maxlength="60" data-i18n-placeholder="p_customLabel" />
+            <button id="customAdd" class="btn primary c-btn" type="button" data-i18n="p_add"></button>
+            <input id="customTemplate" class="c-tpl" type="text" spellcheck="false" />
+          </div>
+          <p id="customError" class="error" role="alert" hidden></p>
+        </div>
+      </section>
+
+      <!-- ================= General ================= -->
+      <section class="tab" id="tab-general" role="tabpanel">
+        <div class="card">
+          <h3 data-i18n="p_language"></h3>
+          <label class="field">
+            <span data-i18n="p_language"></span>
+            <select id="language" data-key="language"></select>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_searchTranslate"></h3>
+          <label class="field">
+            <span data-i18n="p_searchEngine"></span>
+            <select data-key="searchEngine">
+              <option value="google">Google</option>
+              <option value="bing">Bing</option>
+              <option value="duckduckgo">DuckDuckGo</option>
+              <option value="yandex">Yandex</option>
+              <option value="ecosia">Ecosia</option>
+              <option value="brave">Brave Search</option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="p_translateLang"></span>
+            <input class="short" type="text" data-key="translateLang" maxlength="12" placeholder="auto" spellcheck="false" />
+          </label>
+          <p class="hint" data-i18n="p_translateLangHint"></p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_sites"></h3>
+          <label class="field col">
+            <span data-i18n="p_blocklist"></span>
+            <textarea data-key="blockedSites" data-list rows="3" spellcheck="false" placeholder="figma.com"></textarea>
+          </label>
+          <p class="hint" data-i18n="p_blocklistHint"></p>
+          <label class="field col">
+            <span data-i18n="p_darkSites"></span>
+            <textarea data-key="darkSites" data-list rows="2" spellcheck="false" placeholder="example.com"></textarea>
+          </label>
+          <p class="hint" data-i18n="p_darkSitesHint"></p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_tips"></h3>
+          <ul class="tips">
+            <li data-i18n="p_tip1"></li>
+            <li data-i18n="p_tip2"></li>
+            <li data-i18n="p_tip3"></li>
+            <li id="tipMac" data-i18n="p_tipMac" hidden></li>
+            <li id="tipTouch" data-i18n="p_tipTouch" hidden></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= Advanced ================= -->
+      <section class="tab" id="tab-advanced" role="tabpanel">
+        <div class="card">
+          <h3 data-i18n="p_llm"></h3>
+          <label class="field col">
+            <span data-i18n="p_llmUrl"></span>
+            <input type="url" data-key="llmUrl" spellcheck="false" placeholder="http://localhost:1234/v1/chat/completions" />
+          </label>
+          <p class="hint" data-i18n="p_llmUrlHint"></p>
+          <label class="field col">
+            <span data-i18n="p_llmModel"></span>
+            <input type="text" data-key="llmModel" spellcheck="false" placeholder="llama3.1" />
+          </label>
+          <p class="hint" data-i18n="p_llmModelHint"></p>
+          <label class="field col">
+            <span data-i18n="p_llmKey"></span>
+            <input type="password" data-key="llmKey" autocomplete="off" spellcheck="false" />
+          </label>
+          <p class="hint" data-i18n="p_llmKeyHint"></p>
+          <label class="field">
+            <span data-i18n="p_llmStream"></span>
+            <span class="switch"><input type="checkbox" data-key="llmStream" /><span class="track"></span></span>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_ocr"></h3>
+          <label class="field col">
+            <span data-i18n="p_ocrKey"></span>
+            <input type="password" data-key="ocrKey" autocomplete="off" spellcheck="false" />
+          </label>
+          <p class="hint" data-i18n="p_ocrKeyHint"></p>
+          <label class="field">
+            <span data-i18n="p_ocrLang"></span>
+            <select data-key="ocrLang">
+              <option value="" data-i18n="p_langAuto"></option>
+              <option value="eng">English</option>
+              <option value="tur">Türkçe</option>
+              <option value="ger">Deutsch</option>
+              <option value="fre">Français</option>
+              <option value="spa">Español</option>
+              <option value="rus">Русский</option>
+              <option value="ita">Italiano</option>
+              <option value="por">Português</option>
+              <option value="pol">Polski</option>
+              <option value="dut">Nederlands</option>
+              <option value="ara">العربية</option>
+              <option value="jpn">日本語</option>
+              <option value="kor">한국어</option>
+              <option value="chs">中文 (简体)</option>
+              <option value="cht">中文 (繁體)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_updates"></h3>
+          <div class="field">
+            <span id="updVersion"></span>
+            <button id="updCheck" class="btn" type="button" data-i18n="p_checkNow"></button>
+          </div>
+          <p id="updStatus" class="hint"></p>
+          <div class="actions" id="updActions" hidden>
+            <button id="updDownload" class="btn primary" type="button"><span class="bi" data-icon="download"></span><span data-i18n="p_download"></span></button>
+          </div>
+          <label class="field">
+            <span data-i18n="p_autoUpdate"></span>
+            <span class="switch"><input type="checkbox" data-key="autoUpdateCheck" /><span class="track"></span></span>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="p_backup"></h3>
+          <p class="hint" data-i18n="p_backupHint"></p>
+          <div class="actions">
+            <button id="exportBtn" class="btn" type="button"><span class="bi" data-icon="download"></span><span data-i18n="p_export"></span></button>
+            <button id="importBtn" class="btn" type="button"><span class="bi" data-icon="upload"></span><span data-i18n="p_import"></span></button>
+            <input id="importFile" type="file" accept="application/json,.json" hidden />
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <button id="resetBtn" class="btn" type="button" data-i18n="p_reset"></button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </footer>
+
+    <script src="../src/platform.js"></script>
+    <script src="../src/util.js"></script>
+    <script src="../src/i18n/i18n.js"></script>
+    <script src="../src/i18n/menu.js"></script>
+    <script src="../src/i18n/popup.js"></script>
+    <script src="../src/icons.js"></script>
+    <script src="../src/items.js"></script>
+    <script src="../src/config.js"></script>
+    <script src="../src/theme.js"></script>
+    <script src="../src/menu-view.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
