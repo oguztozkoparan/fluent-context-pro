@@ -26,7 +26,7 @@ SHORT BY DESIGN
 
 USEFUL ACTIONS
 • Text: copy, search, translate, change case, word count, read aloud, copy as Markdown
-• Links: open in a background or private window, copy a clean link without tracking parameters, QR code, Wayback Machine
+• Links: open in a new tab (in the background or switching to it) or a private window, copy a clean link without tracking parameters, QR code, Wayback Machine
 • Images: copy, save, search by image (Google Lens, Bing, Yandex, TinEye), extract text (OCR), read Stable Diffusion / ComfyUI prompt metadata
 • Video: Picture-in-Picture, playback speed, loop, copy the current frame
 • Page and developer tools: forced dark mode per site, screenshot, color picker, CSS selector, Tailwind classes
@@ -64,7 +64,7 @@ KISA VE DÜZENLİ
 
 İŞE YARAYAN İŞLEMLER
 • Metin: kopyala, ara, çevir, büyük/küçük harf, kelime sayısı, sesli okuma, Markdown olarak kopyala
-• Bağlantı: arka planda veya gizli pencerede aç, izleme parametresiz temiz bağlantı kopyala, QR kodu, Wayback Machine
+• Bağlantı: yeni sekmede aç (arka planda ya da o sekmeye geçerek) veya gizli pencerede aç, izleme parametresiz temiz bağlantı kopyala, QR kodu, Wayback Machine
 • Resim: kopyala, kaydet, görselle ara (Google Lens, Bing, Yandex, TinEye), metin çıkar (OCR), Stable Diffusion / ComfyUI prompt bilgisini oku
 • Video: Picture-in-Picture, oynatma hızı, döngü, geçerli kareyi kopyala
 • Sayfa ve geliştirici araçları: siteye özel karanlık mod, ekran görüntüsü, renk seçici, CSS seçicisi, Tailwind sınıfları

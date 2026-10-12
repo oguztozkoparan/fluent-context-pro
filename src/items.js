@@ -94,10 +94,11 @@
       },
 
       // ---------- Links ----------
-      { id: 'openLink', group: 'link', icon: I.externalLink, when: link, run: (c, e) => e.open(c.link) },
-      { id: 'openBackground', secondary: true, group: 'link', icon: I.layers, when: link, run: (c, e) => e.open(c.link, { background: true }) },
+      // Like the browser's own "Open link in new tab": the new tab opens behind the current one.
+      { id: 'openLink', group: 'link', icon: I.externalLink, when: link, run: (c, e) => e.open(c.link, { background: true }) },
+      { id: 'openLinkSwitch', group: 'link', icon: I.tabEnter, when: link, run: (c, e) => e.open(c.link) },
       {
-        id: 'openIncognito', secondary: true, group: 'link', icon: I.incognito, when: link,
+        id: 'openIncognito', group: 'link', icon: I.incognito, when: link,
         run: async (c, e) => { const r = await e.send({ type: 'OPEN_INCOGNITO', url: c.link }); if (!r.ok) e.toast(e.t('incognitoFailed'), 'error', 6000); }
       },
       { id: 'copyLink', group: 'link', icon: I.link, when: link, run: (c, e) => e.copy(c.link, e.t('addressCopied')) },
@@ -116,8 +117,8 @@
 
       // ---------- Images ----------
       { id: 'copyImage', group: 'image', icon: I.image, when: img, run: (c, e) => e.copyImage(c.image) },
-      { id: 'copyImageUrl', secondary: true, group: 'image', icon: I.link, when: img, run: (c, e) => e.copy(c.image, e.t('addressCopied')) },
-      { id: 'openImage', secondary: true, group: 'image', icon: I.externalLink, when: (c) => img(c) && U.isHttpUrl(c.image), run: (c, e) => e.open(c.image) },
+      { id: 'copyImageUrl', group: 'image', icon: I.link, when: img, run: (c, e) => e.copy(c.image, e.t('addressCopied')) },
+      { id: 'openImage', group: 'image', icon: I.externalLink, when: (c) => img(c) && U.isHttpUrl(c.image), run: (c, e) => e.open(c.image) },
       { id: 'downloadImage', group: 'image', icon: I.download, when: img, run: (c, e) => e.download(c.image, U.filenameFromUrl(c.image), false) },
       {
         id: 'reverseImage', group: 'image', icon: I.search, when: (c) => img(c) && U.isHttpUrl(c.image),
@@ -179,7 +180,7 @@
           run: (c) => { c.el.video.playbackRate = r; }
         }))
       },
-      { id: 'videoLoop', secondary: true, group: 'video', icon: I.repeat, scope: 'frame', when: vid, checked: (c) => c.video.loop, run: (c) => { c.el.video.loop = !c.el.video.loop; } },
+      { id: 'videoLoop', group: 'video', icon: I.repeat, scope: 'frame', when: vid, checked: (c) => c.video.loop, run: (c) => { c.el.video.loop = !c.el.video.loop; } },
       {
         id: 'videoFrame', secondary: true, group: 'video', icon: I.camera, scope: 'frame', when: vid,
         run: async (c, e) => {

@@ -170,13 +170,21 @@ function boot(opts = {}) {
     b.st.areas.local = { bgOpacity: '0.6', disabledItems: ['savePdf', 'print'], ocrKey: 'SECRET', customItems: [{ label: 'x', url: 'https://x.com/?q=%s' }] };
     await b.FC.config.migrate();
     deq(Object.keys(b.st.areas.local), ['ocrKey']);
-    assert.strictEqual(b.st.areas.sync.bgOpacity, '0.6'); assert.strictEqual(b.st.areas.sync.schemaVersion, 3);
+    assert.strictEqual(b.st.areas.sync.bgOpacity, '0.6'); assert.strictEqual(b.st.areas.sync.schemaVersion, 4);
     const dis = b.st.areas.sync.disabledItems;
     assert(dis.includes('print') && dis.includes('imageInfo') && !dis.includes('savePdf'), JSON.stringify(dis));
     const cfg = await b.FC.config.load();
     assert.strictEqual(cfg.bgOpacity, 0.6); assert.strictEqual(cfg.ocrKey, 'SECRET'); assert.strictEqual(cfg.customItems[0].template, 'https://x.com/?q=%s');
     await b.FC.config.migrate();
     deq(Object.keys(b.st.areas.local), ['ocrKey']);
+  });
+  await test('config: migrate folds "Open in Background Tab" into "Open in New Tab" without re-disabling items', async () => {
+    const b = boot();
+    b.st.areas.sync = { schemaVersion: 3, disabledItems: ['openBackground'], pinnedItems: ['openBackground', 'openLink', 'copy'], itemOrder: ['copy', 'openBackground', 'openLink'] };
+    await b.FC.config.migrate();
+    const s = b.st.areas.sync;
+    assert.strictEqual(s.schemaVersion, 4);
+    deq(s.disabledItems, []); deq(s.pinnedItems, ['openLink', 'copy']); deq(s.itemOrder, ['copy', 'openLink']);
   });
   await test('config: save routes secrets to local; reset keeps secrets', async () => {
     const b = boot();

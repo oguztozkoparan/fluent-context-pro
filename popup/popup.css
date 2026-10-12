@@ -1,5 +1,5 @@
 /* FluentContext Pro — settings page. Follows the OS light/dark mode and the user's accent colour.
-   Toolbar popup: fixed 400×580, only <main> scrolls.  Full tab (options page): centred column. */
+   Toolbar popup: fixed 560×600 (Chrome's popup limit is 800×600), only <main> scrolls.  Full tab (options page): centred column. */
 :root {
   color-scheme: light dark;
   --accent: #0078d4;
@@ -13,8 +13,8 @@
   --hover: rgba(0, 0, 0, 0.05);
   --danger: #c42b1c;
   --radius: 8px;
-  --popup-w: 400px;
-  --popup-h: 580px;
+  --popup-w: 560px;
+  --popup-h: 600px;
   font-size: 12.5px;
   line-height: 1.4;
 }
@@ -44,7 +44,7 @@ svg { display: block; }
 
 /* ---------- Frame ---------- */
 body.popup {
-  width: var(--popup-w); height: var(--popup-h); max-width: 100vw;
+  width: var(--popup-w); min-width: var(--popup-w); height: var(--popup-h);
   display: flex; flex-direction: column; overflow: hidden;
 }
 body.popup > header, body.popup > .banners, body.popup > nav, body.popup > footer { flex: none; }
@@ -134,7 +134,7 @@ input[type="color"] { width: 34px; height: 24px; padding: 0; border: 1px solid v
 /* ---------- Live preview (sticky while adjusting) ---------- */
 .preview {
   position: sticky; top: -12px; z-index: 1; display: flex; align-items: flex-start; justify-content: center;
-  height: 168px; margin: -12px -12px 12px; padding: 14px 16px; overflow: hidden; border-bottom: 1px solid var(--border);
+  height: 196px; margin: -12px -12px 12px; padding: 14px 16px; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; border-bottom: 1px solid var(--border);
   background: radial-gradient(circle at 18% 22%, #5b8def 0, transparent 46%), radial-gradient(circle at 82% 78%, #8f5bff 0, transparent 50%), #22304f;
 }
 body.wide .preview { top: 86px; }

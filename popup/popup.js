@@ -37,7 +37,7 @@
   const inPopup = (() => {
     if (new URLSearchParams(location.search).has('popup')) return true; // tests & screenshots
     try { if (api.extension && api.extension.getViews) return api.extension.getViews({ type: 'popup' }).includes(window); } catch (e) { /* ignore */ }
-    return window.innerWidth <= 520;
+    return window.innerWidth <= 600;
   })();
   document.body.classList.add(inPopup ? 'popup' : 'wide');
   document.documentElement.dataset.variant = P.variant;

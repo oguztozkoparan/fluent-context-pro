@@ -7,6 +7,28 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- "Open and Switch to Tab" link action: opens the link in a new tab and switches to it.
+- MIT license.
+- Appearance → Highlight: "Colorless" (default, a neutral fill on every platform style) or
+  "Accent color".
+
+### Changed
+- "Open in New Tab" opens the tab in the background, like the browser's own menu.
+  "Open in Background Tab" is removed; pins and custom order move to "Open in New Tab".
+- The compact layout keeps frequent actions on the main menu: "Open in Private Window",
+  "Copy Image Address", "Open Image in New Tab" and "Loop" are no longer under "More".
+- The hovered row no longer shows a blue indicator bar (Windows). By default it uses a neutral
+  fill on every style, including macOS. With Highlight set to "Accent color", Windows and Linux
+  tint the row and its text with the accent color, with text contrast adjusted automatically,
+  and macOS keeps its full accent highlight.
+- Menu rows and icon buttons show a pointer cursor.
+
+### Fixed
+- The toolbar popup could open very narrow: it no longer caps its width to the initial popup
+  viewport. It is now 560×600 instead of 400×580.
+- The live preview in settings scrolls when the menu is taller than the preview area.
+
 ## [6.1.0] - 2026-09-24
 
 ### Added

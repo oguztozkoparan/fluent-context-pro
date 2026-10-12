@@ -39,12 +39,31 @@
   const fontStack = (key, variant) => FONTS[key] || P.systemFont(variant);
   const animMs = (cfg) => (cfg.animStyle === 'none' ? 0 : U.clamp(U.num(cfg.animDuration, 150), 0, 600));
 
+  const rgbOf = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const luminance = (rgb) => {
+    const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2]);
+  };
+  const contrast = (a, b) => { const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const css = (rgb) => `rgb(${rgb.join(', ')})`;
+
   // White or near-black text, whichever reads better on the accent colour.
   function onAccent(hex) {
-    const n = parseInt(hex.slice(1), 16);
-    const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
-    const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
-    return L > 0.45 ? '#111111' : '#ffffff';
+    return luminance(rgbOf(hex)) > 0.45 ? '#111111' : '#ffffff';
+  }
+
+  // Hover row on Windows and Linux: a soft accent tint behind accent-coloured text. The text is
+  // lightened (dark theme) or darkened (light theme) until it reads clearly on that tint, so any
+  // accent from the settings works, including very light or very dark ones.
+  function accentHover(hex, surface, dark) {
+    const accent = rgbOf(hex);
+    const alpha = dark ? 0.24 : 0.14;
+    const bg = mix(surface, accent, alpha);
+    const toward = dark ? [255, 255, 255] : [0, 0, 0];
+    let text = mix(accent, toward, dark ? 0.35 : 0.2);
+    for (let t = 0.05; contrast(text, bg) < 4.5 && t <= 1; t += 0.05) text = mix(accent, toward, (dark ? 0.35 : 0.2) + t);
+    return { bg: `rgba(${accent.join(', ')}, ${alpha})`, text: css(text) };
   }
 
   function vars(cfg) {
@@ -57,9 +76,12 @@
     const accent = /^#[0-9a-f]{6}$/i.test(cfg.accentColor) ? cfg.accentColor : '#0078d4';
     const dens = DENSITY[cfg.density] || DENSITY.normal;
     const fs = U.clamp(U.num(cfg.fontSize, 13), 10, 20);
+    const hover = accentHover(accent, SURFACE[variant][dark ? 'dark' : 'light'].split(',').map(Number), dark);
     return {
       '--fc-accent': accent,
       '--fc-on-accent': onAccent(accent),
+      '--fc-accent-hover': hover.bg,
+      '--fc-accent-text': hover.text,
       '--fc-bg': `rgba(${SURFACE[variant][dark ? 'dark' : 'light']}, ${op})`,
       '--fc-blur': blur ? `blur(${blur}px) saturate(170%)` : 'none',
       '--fc-text': dark ? '#f5f5f5' : '#1b1b1b',
@@ -87,6 +109,7 @@
     root.style.colorScheme = dark ? 'dark' : 'light';
     root.dataset.variant = resolveVariant(cfg);
     root.dataset.theme = dark ? 'dark' : 'light';
+    root.dataset.highlight = cfg.highlight === 'accent' ? 'accent' : 'neutral';
     root.dataset.icons = cfg.showIcons === false ? 'off' : 'on';
     root.dataset.shortcuts = cfg.showShortcuts === false ? 'off' : 'on';
     root.dataset.anim = cfg.animStyle || 'scale';
@@ -127,8 +150,9 @@
 .item {
   position: relative; display: flex; align-items: center; justify-content: space-between; gap: 18px;
   min-height: var(--fc-item-h); padding: var(--fc-item-pad); border-radius: var(--fc-item-radius);
-  white-space: nowrap; cursor: default;
+  white-space: nowrap; cursor: pointer;
 }
+.item[aria-disabled="true"] { cursor: default; }
 .item.focused { background: var(--fc-hover); }
 .item[aria-disabled="true"] { opacity: .42; }
 .item[aria-disabled="true"].focused { background: transparent; }
@@ -149,28 +173,35 @@
 .bar { display: flex; gap: 2px; }
 .bar-btn {
   flex: 1 1 0; min-width: 34px; height: var(--fc-item-h); padding: 0; margin: 0; border: 0; font: inherit;
-  display: flex; align-items: center; justify-content: center; cursor: default;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
   background: transparent; color: var(--fc-text); border-radius: var(--fc-item-radius);
 }
 .bar-btn svg { width: 16px; height: 16px; opacity: .85; pointer-events: none; }
 .bar-btn.focused { background: var(--fc-hover); }
-.bar-btn:disabled { opacity: .38; }
+.bar-btn:disabled { opacity: .38; cursor: default; }
 .fc-root[data-variant="macos"] .bar-btn.focused { background: var(--fc-accent); color: var(--fc-on-accent); }
 .fc-root[data-variant="macos"] .bar-btn.focused svg { opacity: 1; }
 
-/* Windows 11 / Fluent: subtle fill + accent pill */
-.fc-root[data-variant="windows"] .item.focused:not([aria-disabled="true"])::before {
-  content: ''; position: absolute; left: 0; top: 50%; width: 3px; height: 16px; margin-top: -8px;
-  border-radius: 3px; background: var(--fc-accent);
-}
+/* Windows 11 / Fluent and GNOME: accent-tinted row with accent text */
+.fc-root:not([data-variant="macos"]) .item.focused:not([aria-disabled="true"]),
+.fc-root:not([data-variant="macos"]) .bar-btn.focused:not(:disabled) { background: var(--fc-accent-hover); color: var(--fc-accent-text); }
+.fc-root:not([data-variant="macos"]) .item.focused:not([aria-disabled="true"]) .icon,
+.fc-root:not([data-variant="macos"]) .bar-btn.focused:not(:disabled) svg { opacity: 1; }
+.fc-root:not([data-variant="macos"]) .item.focused:not([aria-disabled="true"]) .item-right,
+.fc-root:not([data-variant="macos"]) .item.focused:not([aria-disabled="true"]) .check { color: var(--fc-accent-text); }
 /* macOS: full accent highlight with contrasting text */
 .fc-root[data-variant="macos"] .item.focused:not([aria-disabled="true"]) { background: var(--fc-accent); color: var(--fc-on-accent); }
 .fc-root[data-variant="macos"] .item.focused:not([aria-disabled="true"]) .item-right,
 .fc-root[data-variant="macos"] .item.focused:not([aria-disabled="true"]) .check,
 .fc-root[data-variant="macos"] .item.focused:not([aria-disabled="true"]) .icon { color: var(--fc-on-accent); opacity: 1; }
 .fc-root[data-variant="macos"] .item { gap: 24px; }
-/* GNOME / libadwaita: plain rounded hover, slightly heavier weight */
-.fc-root[data-variant="linux"] .item.focused { background: var(--fc-hover); }
+/* "Colorless" highlight from the settings: a neutral fill on every platform style */
+.fc-root[data-highlight="neutral"] .item.focused:not([aria-disabled="true"]),
+.fc-root[data-highlight="neutral"] .bar-btn.focused:not(:disabled) { background: var(--fc-hover); color: var(--fc-text); }
+.fc-root[data-highlight="neutral"] .item.focused:not([aria-disabled="true"]) .icon,
+.fc-root[data-highlight="neutral"] .item.focused:not([aria-disabled="true"]) .check { color: inherit; }
+.fc-root[data-highlight="neutral"] .item.focused:not([aria-disabled="true"]) .item-right { color: var(--fc-muted); }
+/* GNOME / libadwaita: slightly heavier weight */
 .fc-root[data-variant="linux"] .label { font-weight: 450; }
 
 @media (pointer: coarse) {

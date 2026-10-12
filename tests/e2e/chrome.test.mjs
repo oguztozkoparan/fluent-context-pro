@@ -33,7 +33,7 @@ try {
   await sleep(800);
   const bg = await evaluate(send, sw, `(async () => ({ version: chrome.runtime.getManifest().version, sync: await chrome.storage.sync.get(null), updates: typeof FC.updates.check, alarms: await chrome.alarms.getAll() }))()`);
   check('service worker loads all modules', bg.updates === 'function', bg);
-  check('install migration ran', bg.sync.schemaVersion === 3, bg.sync);
+  check('install migration ran', bg.sync.schemaVersion === 4, bg.sync);
   const onboarding = (await send('Target.getTargets')).targetInfos.find((t) => t.url.includes(`${browser.extId}/popup/popup.html`));
   check('settings page opens on first install', !!onboarding);
 
@@ -94,13 +94,13 @@ try {
   await mouse(send, s, a.x, a.y, { button: 'right' });
   await sleep(400);
   st = await menuState(send, s);
-  check('link menu keeps main actions and one "More" submenu', labels(st.menus[0]).join() === 'Open in New Tab,Copy Link Address,More Link Actions,Developer Tools,Page Tools', labels(st.menus[0]));
+  check('link menu keeps main actions and one "More" submenu', labels(st.menus[0]).join() === 'Open in New Tab,Open and Switch to Tab,Open in Private Window,Copy Link Address,More Link Actions,Developer Tools,Page Tools', labels(st.menus[0]));
   const more = st.menus[0].rows.find((r) => r.label === 'More Link Actions');
   const mc = await center(send, s, more.backendNodeId);
   await mouse(send, s, mc.x, mc.y, { type: 'move' });
   await sleep(400);
   st = await menuState(send, s);
-  check('"More" submenu lists the secondary link actions', labels(st.menus[1]).includes('Copy Clean Link') && labels(st.menus[1]).includes('Open in Background Tab'), labels(st.menus[1]));
+  check('"More" submenu lists the secondary link actions', labels(st.menus[1]).includes('Copy Clean Link') && labels(st.menus[1]).includes('Save Link As…'), labels(st.menus[1]));
   await send('Browser.grantPermissions', { permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'], origin: `http://127.0.0.1:${server.port}` });
   const clean = st.menus[1].rows.find((r) => r.label === 'Copy Clean Link');
   const cc = await center(send, s, clean.backendNodeId);
@@ -110,14 +110,11 @@ try {
   const clip = await evaluate(send, s, `navigator.clipboard.readText()`);
   check('clean link copied without tracking parameters', clip === 'https://example.com/landing?id=42', clip);
 
-  // Background tab through tabs.create.
+  // "Open in New Tab" opens a background tab through tabs.create.
   await mouse(send, s, a.x, a.y, { button: 'right' });
   await sleep(300);
   st = await menuState(send, s);
-  await mouse(send, s, ...Object.values(await center(send, s, st.menus[0].rows.find((r) => r.label === 'More Link Actions').backendNodeId)), { type: 'move' });
-  await sleep(400);
-  st = await menuState(send, s);
-  const bgRow = st.menus[1].rows.find((r) => r.label === 'Open in Background Tab');
+  const bgRow = st.menus[0].rows.find((r) => r.label === 'Open in New Tab');
   const bgc = await center(send, s, bgRow.backendNodeId);
   await mouse(send, s, bgc.x, bgc.y, { type: 'move' });
   await mouse(send, s, bgc.x, bgc.y);

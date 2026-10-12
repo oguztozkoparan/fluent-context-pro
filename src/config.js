@@ -8,7 +8,7 @@
   const P = FC.platform;
   const U = FC.util;
 
-  const SCHEMA = 3;
+  const SCHEMA = 4;
   const SECRET_KEYS = ['ocrKey', 'llmKey'];
   const ENUMS = {
     platformStyle: ['auto', 'windows', 'macos', 'linux'],
@@ -17,7 +17,8 @@
     animStyle: ['scale', 'slide', 'fade', 'none'],
     searchEngine: ['google', 'bing', 'duckduckgo', 'yandex', 'ecosia', 'brave'],
     fontFamily: ['system', 'segoe', 'sf', 'inter', 'roboto', 'mono'],
-    menuLayout: ['compact', 'full']
+    menuLayout: ['compact', 'full'],
+    highlight: ['neutral', 'accent']
   };
   const RANGES = {
     bgOpacity: [0.2, 1], blurVal: [0, 60], borderRadius: [0, 24], fontSize: [10, 20],
@@ -37,6 +38,7 @@
     platformStyle: 'auto',
     theme: 'auto',
     fontFamily: 'system',
+    highlight: 'neutral',
     menuWidth: 220,
     showIcons: true,
     showShortcuts: true,
@@ -160,8 +162,9 @@
     return { app: 'FluentContext Pro', exportedAt: new Date().toISOString(), settings: out };
   };
 
-  // Runs from the background on install/update: moves v5 settings from local to sync and
-  // turns off niche items for existing users once.
+  // Runs from the background on install/update: moves v5 settings from local to sync,
+  // turns off niche items for existing users once (schema 3) and folds the removed
+  // "Open in Background Tab" into "Open in New Tab", which now opens in the background (schema 4).
   async function migrate() {
     const local = await get(api.storage.local, null);
     const sync = syncArea();
@@ -179,8 +182,15 @@
     }
     if (version < SCHEMA) {
       const patch = { schemaVersion: SCHEMA };
-      if (Array.isArray(synced.disabledItems)) {
+      if (version < 3 && Array.isArray(synced.disabledItems)) {
         patch.disabledItems = [...new Set([...synced.disabledItems.filter((id) => id !== 'savePdf'), ...defaultOff()])];
+      }
+      if (version < 4) {
+        const rename = (list) => [...new Set(list.map((id) => (id === 'openBackground' ? 'openLink' : id)))];
+        if (Array.isArray(synced.pinnedItems)) patch.pinnedItems = rename(synced.pinnedItems);
+        if (Array.isArray(synced.itemOrder)) patch.itemOrder = rename(synced.itemOrder);
+        const disabled = patch.disabledItems || synced.disabledItems;
+        if (Array.isArray(disabled)) patch.disabledItems = disabled.filter((id) => id !== 'openBackground');
       }
       if (synced.customItems) patch.customItems = sanitizeCustom(synced.customItems);
       await sync.set(patch);
